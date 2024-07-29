@@ -1,1 +1,26 @@
+trigger:
+  - main
 
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '14.x'
+    displayName: 'Install Node.js'
+
+  - script: |
+      npm install -g azure-cli
+    displayName: 'Install Azure CLI'
+
+  - script: |
+      az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
+      az webapp up --location $(azureLocation) --name $(webAppName) --html
+    displayName: 'Deploy to Azure Web App'
+    env:
+      servicePrincipalId: $(azureServicePrincipalId)
+      servicePrincipalKey: $(azureServicePrincipalKey)
+      tenantId: $(azureTenantId)
+      azureLocation: $(azureLocation)
+      webAppName: $(azureWebAppName)
